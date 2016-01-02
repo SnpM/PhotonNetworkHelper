@@ -2,6 +2,7 @@
 using System.Collections;
 using Photon;
 using System.Linq;
+
 namespace Lockstep.NetworkHelpers
 {
     //TODO: Finish PhotonNetworkHelper
@@ -24,6 +25,7 @@ namespace Lockstep.NetworkHelpers
         }
 
         private bool _isServer;
+
         public override bool IsServer
         {
             get
@@ -40,12 +42,13 @@ namespace Lockstep.NetworkHelpers
             }
         }
 
-        void Awake () {
+        void Awake()
+        {
             PhotonNetwork.OnEventCall += HandleData;
         }
 
-        void HandleData (byte eventCode, object content, int id) {
-            Debug.Log("DataReceived: " + (MessageType)eventCode);
+        void HandleData(byte eventCode, object content, int id)
+        {
             base.Receive((MessageType)eventCode, (byte[])content);
         }
 
@@ -63,19 +66,25 @@ namespace Lockstep.NetworkHelpers
             _isServer = false;
         }
 
-        void OnJoinedLobby () {
+        void OnJoinedLobby()
+        {
 
             RoomOptions roomOptions = new RoomOptions();
             TypedLobby typedLobby = new TypedLobby();
             PhotonNetwork.JoinOrCreateRoom("TestRoom", roomOptions, typedLobby);
         }
-        void OnJoinedRoom () {
+
+        void OnJoinedRoom()
+        {
             Debug.Log("On Joined Room");
-            if (this._isServer) {
+            if (this._isServer)
+            {
                 PhotonNetwork.SetMasterClient(PhotonNetwork.player);
             }
         }
-        void OnPhotonJoinedRoomFailed () {
+
+        void OnPhotonJoinedRoomFailed()
+        {
             Debug.Log("Failed Joined Room");
         }
 
@@ -86,23 +95,38 @@ namespace Lockstep.NetworkHelpers
 
         public override void SendMessageToAll(MessageType messageType, byte[] data)
         {
+            
             RaiseEventOptions options = new RaiseEventOptions();
             PhotonPlayer[] players = PhotonNetwork.playerList;
-            options.TargetActors = players.Select<PhotonPlayer,int> ((player) => player.ID).ToArray();
-            PhotonNetwork.RaiseEvent((byte)messageType,data,true,options);
-            Debug.Log("DataSentToAll");
+            options.TargetActors = new int[players.Length - 1];
+            int i = 0;
+            foreach (PhotonPlayer player in players)
+            {
+                if (player.isMasterClient == false)
+                {
+                    options.TargetActors [i++] = player.ID;
+                }
+            }
+            PhotonNetwork.RaiseEvent((byte)messageType, data, false, options);
+            this.Receive(messageType, data);
+
         }
 
         public override void SendMessageToServer(MessageType messageType, byte[] data)
         {
-            RaiseEventOptions options = new RaiseEventOptions();
-            options.TargetActors = new int[]{PhotonNetwork.masterClient.ID};
-            PhotonNetwork.RaiseEvent((byte)messageType,data,true,options);
-            Debug.Log("DataSentToServer");
-
+            if (this.IsServer)
+            {
+                this.Receive(messageType,data);
+            } else
+            {
+                RaiseEventOptions options = new RaiseEventOptions();
+                options.TargetActors = new int[]{ PhotonNetwork.masterClient.ID };
+                PhotonNetwork.RaiseEvent((byte)messageType, data, true, options);
+            }
         }
 
-        void OnGUI () {
+        void OnGUI()
+        {
             GUILayout.Space(200f);
             GUILayout.Label(PhotonNetwork.connectionState.ToString());
             GUILayout.Label(PhotonNetwork.GetPing().ToString());
