@@ -107,7 +107,7 @@ namespace Lockstep.NetworkHelpers
                     options.TargetActors [i++] = player.ID;
                 }
             }
-            PhotonNetwork.RaiseEvent((byte)messageType, data, false, options);
+            PhotonNetwork.RaiseEvent((byte)messageType, data, true, options);
             this.Receive(messageType, data);
 
         }
