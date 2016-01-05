@@ -93,7 +93,7 @@ namespace Lockstep.NetworkHelpers
             PhotonNetwork.Disconnect();
         }
 
-        public override void SendMessageToAll(MessageType messageType, byte[] data)
+        protected override void OnSendMessageToAll(MessageType messageType, byte[] data)
         {
             
             RaiseEventOptions options = new RaiseEventOptions();
@@ -112,7 +112,7 @@ namespace Lockstep.NetworkHelpers
 
         }
 
-        public override void SendMessageToServer(MessageType messageType, byte[] data)
+        protected override void OnSendMessageToServer(MessageType messageType, byte[] data)
         {
             if (this.IsServer)
             {
