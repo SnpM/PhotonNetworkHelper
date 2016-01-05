@@ -52,7 +52,7 @@ namespace Lockstep.NetworkHelpers
             base.Receive((MessageType)eventCode, (byte[])content);
         }
 
-        const string Version = "1";
+        const string Version = "1.1";
 
         public override void Host(int roomSize)
         {
@@ -71,7 +71,7 @@ namespace Lockstep.NetworkHelpers
 
             RoomOptions roomOptions = new RoomOptions();
             TypedLobby typedLobby = new TypedLobby();
-            PhotonNetwork.JoinOrCreateRoom("TestRoom", roomOptions, typedLobby);
+            PhotonNetwork.JoinOrCreateRoom("Test", roomOptions, typedLobby);
         }
 
         void OnJoinedRoom()
@@ -79,6 +79,7 @@ namespace Lockstep.NetworkHelpers
             Debug.Log("On Joined Room");
             if (this._isServer)
             {
+                
                 PhotonNetwork.SetMasterClient(PhotonNetwork.player);
             }
         }
