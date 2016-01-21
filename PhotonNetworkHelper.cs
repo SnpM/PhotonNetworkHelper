@@ -8,6 +8,8 @@ namespace Lockstep.NetworkHelpers
     //TODO: Finish PhotonNetworkHelper
     public class PhotonNetworkHelper : NetworkHelper
     {
+        [SerializeField]
+        private bool _directMessages = true;
         public override bool IsConnected
         {
             get
@@ -94,35 +96,33 @@ namespace Lockstep.NetworkHelpers
             PhotonNetwork.Disconnect();
         }
 
+        bool reliable = false;
         protected override void OnSendMessageToAll(MessageType messageType, byte[] data)
         {
             
-            RaiseEventOptions options = new RaiseEventOptions();
-            PhotonPlayer[] players = PhotonNetwork.playerList;
-            options.TargetActors = new int[players.Length - 1];
-            int i = 0;
-            foreach (PhotonPlayer player in players)
+            RaiseEventOptions options = RaiseEventOptions.Default;
+            if (_directMessages)
             {
-                if (player.isMasterClient == false)
-                {
-                    options.TargetActors [i++] = player.ID;
-                }
+                options.Receivers = ExitGames.Client.Photon.ReceiverGroup.Others;
+                this.Receive(messageType, data);
             }
-            PhotonNetwork.RaiseEvent((byte)messageType, data, false, options);
-            this.Receive(messageType, data);
+            else {
+                options.Receivers = ExitGames.Client.Photon.ReceiverGroup.All;
+            }
+            PhotonNetwork.RaiseEvent((byte)messageType, data, reliable, options);
 
         }
 
         protected override void OnSendMessageToServer(MessageType messageType, byte[] data)
         {
-            if (this.IsServer)
+            if (this.IsServer && this._directMessages)
             {
                 this.Receive(messageType,data);
             } else
             {
-                RaiseEventOptions options = new RaiseEventOptions();
-                options.TargetActors = new int[]{ PhotonNetwork.masterClient.ID };
-                PhotonNetwork.RaiseEvent((byte)messageType, data, false, options);
+                RaiseEventOptions options = RaiseEventOptions.Default;
+                options.Receivers = ExitGames.Client.Photon.ReceiverGroup.MasterClient;
+                PhotonNetwork.RaiseEvent((byte)messageType, data, reliable, options);
             }
         }
 
