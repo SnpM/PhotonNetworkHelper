@@ -103,11 +103,11 @@ namespace Lockstep.NetworkHelpers
             RaiseEventOptions options = RaiseEventOptions.Default;
             if (_directMessages)
             {
-                options.Receivers = ExitGames.Client.Photon.ReceiverGroup.Others;
+				options.Receivers = ReceiverGroup.Others;
                 this.Receive(messageType, data);
             }
             else {
-                options.Receivers = ExitGames.Client.Photon.ReceiverGroup.All;
+				options.Receivers = ReceiverGroup.All;
             }
             PhotonNetwork.RaiseEvent((byte)messageType, data, reliable, options);
 
@@ -121,7 +121,7 @@ namespace Lockstep.NetworkHelpers
             } else
             {
                 RaiseEventOptions options = RaiseEventOptions.Default;
-                options.Receivers = ExitGames.Client.Photon.ReceiverGroup.MasterClient;
+                options.Receivers = ReceiverGroup.MasterClient;
                 PhotonNetwork.RaiseEvent((byte)messageType, data, reliable, options);
             }
         }
