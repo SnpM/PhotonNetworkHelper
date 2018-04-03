@@ -68,7 +68,8 @@ namespace Lockstep.NetworkHelpers
             _isServer = false;
         }
 
-        void OnJoinedLobby()
+		#region Hook up to photon events
+		public void OnJoinedLobby()
         {
 
             RoomOptions roomOptions = new RoomOptions();
@@ -76,9 +77,8 @@ namespace Lockstep.NetworkHelpers
             PhotonNetwork.JoinOrCreateRoom("Test", roomOptions, typedLobby);
         }
 
-        void OnJoinedRoom()
+		public void OnJoinedRoom()
         {
-            Debug.Log("On Joined Room");
             if (this._isServer)
             {
                 
@@ -86,11 +86,11 @@ namespace Lockstep.NetworkHelpers
             }
         }
 
-        void OnPhotonJoinedRoomFailed()
+		public void OnPhotonJoinedRoomFailed()
         {
             Debug.Log("Failed Joined Room");
         }
-
+		#endregion
         public override void Disconnect()
         {
             PhotonNetwork.Disconnect();
